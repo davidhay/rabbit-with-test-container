@@ -16,13 +16,17 @@ public class RecvService {
 	private final List<String> type2msgs = new ArrayList<>();
 		
 	@RabbitListener(queues = "queue1")
-	public void receiveType1(Message msg) {
-		type1msgs.add(extractBody(msg));
+	public void receiveType1(Message rbtMessages) {
+		String msg = extractBody(rbtMessages);
+		System.out.printf("recvd[%s]from[%s]%n", msg, "queue1");
+		type1msgs.add(msg);
 	}
 	
 	@RabbitListener(queues = "queue2")
-	public void receiveType2(Message msg) {
-		type2msgs.add(extractBody(msg));
+	public void receiveType2(Message rbtMessages) {
+		String msg = extractBody(rbtMessages);
+		System.out.printf("recvd[%s]from[%s]%n", msg, "queue2");
+		type2msgs.add(msg);
 	}
 	
 	private String extractBody(Message msg) {

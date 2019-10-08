@@ -12,11 +12,15 @@ import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.util.TestPropertyValues;
+import org.springframework.context.ApplicationContextInitializer;
+import org.springframework.context.ConfigurableApplicationContext;
+import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest
-//@ContextConfiguration(initializers = { SimpleRabbitContainerTest.Initializer.class })
+@ContextConfiguration(initializers = { SimpleRabbitContainerTest.Initializer.class })
 public class SimpleRabbitContainerTest {
 
 	private Integer rabbitPort;
@@ -93,15 +97,28 @@ public class SimpleRabbitContainerTest {
 		//rabbit.stop();
 	}
 
-	/*
 	static class Initializer implements ApplicationContextInitializer<ConfigurableApplicationContext> {
 		public void initialize(ConfigurableApplicationContext configurableApplicationContext) {
+			/*
 			TestPropertyValues
 					.of(	"spring.rabbitmq.password=" + rabbit.getAdminUsername(),
 							"spring.rabbitmq.username=" + rabbit.getAdminPassword(),
 							"spring.rabbitmq.port=" + rabbit.getAmqpPort())
 					.applyTo(configurableApplicationContext.getEnvironment());
+					*/
+			/*
+#spring.rabbitmq.host=localhost
+#spring.rabbitmq.port=5672
+#spring.rabbitmq.username=rabbit
+#spring.rabbitmq.password=bunny
+#spring.rabbitmq.virtual-host=/
+*/
+			TestPropertyValues
+			.of(	"spring.rabbitmq.password=bunny",
+					"spring.rabbitmq.username=rabbit",
+					"spring.rabbitmq.port=5672",
+					"spring.rabbitmq.host=localhost")
+			.applyTo(configurableApplicationContext.getEnvironment());
 		}
 	}
-	*/
 }
