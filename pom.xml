@@ -38,14 +38,19 @@
 			<artifactId>spring-rabbit-test</artifactId>
 			<scope>test</scope>
 		</dependency>
-	<dependency>
-    	<groupId>org.testcontainers</groupId>
-    	<artifactId>rabbitmq</artifactId>
-    	<version>1.12.2</version>
-    	<scope>test</scope>
-	</dependency>	
+		<dependency>
+    		<groupId>org.testcontainers</groupId>
+    		<artifactId>rabbitmq</artifactId>
+    		<version>1.12.2</version>
+    		<scope>test</scope>
+		</dependency>	
+		<dependency>
+			<groupId>org.testcontainers</groupId>
+			<artifactId>rabbitmq</artifactId>
+			<version>1.12.2</version>
+			<scope>test</scope>
+		</dependency>
 	</dependencies>
-
 	<build>
 		<plugins>
 			<plugin>

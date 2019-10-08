@@ -9,5 +9,4 @@ public class RabbitWithTestContainerApplication {
 	public static void main(String[] args) {
 		SpringApplication.run(RabbitWithTestContainerApplication.class, args);
 	}
-
 }
