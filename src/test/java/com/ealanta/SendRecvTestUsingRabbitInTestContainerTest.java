@@ -1,14 +1,20 @@
 package com.ealanta;
 
+import static com.ealanta.QueueConfig.QUEUE_ONE;
+import static com.ealanta.QueueConfig.QUEUE_TWO;
+import static com.ealanta.QueueConfig.TOPIC_ONE;
+import static com.ealanta.QueueConfig.TYPE_ONE;
+import static com.ealanta.QueueConfig.TYPE_TWO;
+
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 import org.junit.Assert;
+import org.junit.BeforeClass;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import static com.ealanta.QueueConfig.*;
 public class SendRecvTestUsingRabbitInTestContainerTest extends BaseRabbitInTestContainerTest {
 
 	@Autowired
@@ -17,6 +23,16 @@ public class SendRecvTestUsingRabbitInTestContainerTest extends BaseRabbitInTest
 	@Autowired
 	private SendingService sendService;	
 	
+	@BeforeClass
+	public static void initRabbit() {
+		try {
+			String result = runCommandInDocker("rabbitmqadmin --vhost=/ import /rabbit-config-for-test.json");
+			System.out.printf("ls [%s]", result);
+		} catch (Exception ex) {
+			ex.printStackTrace();
+		}
+	}
+
 	@Test
 	public void testSendRecv() throws UnsupportedOperationException, IOException, InterruptedException {
 		
@@ -36,7 +52,8 @@ public class SendRecvTestUsingRabbitInTestContainerTest extends BaseRabbitInTest
 	@Test
 	public void testCheckQueuesInTestContainer() throws Exception {
 		String result = runCommandInDocker("rabbitmqadmin list queues -f bash");
-		Assert.assertEquals(QUEUE_ONE + " " + QUEUE_TWO, result);
+		System.out.printf("queues[%s]%n",result);
+		Assert.assertEquals(QUEUE_ONE + " " + QUEUE_TWO + " test.queue.one", result);
 	}
 	
 	@Test

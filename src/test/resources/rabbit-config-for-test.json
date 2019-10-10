@@ -1,0 +1,17 @@
+{
+	"rabbit_version": "3.7.18",
+	"parameters": [],
+	"policies": [],
+	"queues": [
+		{
+			"name": "test.queue.one",
+			"durable": true,
+			"auto_delete": false,
+			"arguments": {
+				
+			}
+		}
+	],
+	"exchanges": [],
+	"bindings": []
+}
