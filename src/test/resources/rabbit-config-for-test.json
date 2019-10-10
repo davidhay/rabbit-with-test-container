@@ -4,7 +4,15 @@
 	"policies": [],
 	"queues": [
 		{
-			"name": "test.queue.one",
+			"name": "queue2",
+			"durable": true,
+			"auto_delete": false,
+			"arguments": {
+				
+			}
+		},
+		{
+			"name": "queue1",
 			"durable": true,
 			"auto_delete": false,
 			"arguments": {
@@ -12,6 +20,36 @@
 			}
 		}
 	],
-	"exchanges": [],
-	"bindings": []
+	"exchanges": [
+		{
+			"name": "topic1",
+			"type": "topic",
+			"durable": true,
+			"auto_delete": false,
+			"internal": false,
+			"arguments": {
+				
+			}
+		}
+	],
+	"bindings": [
+		{
+			"source": "topic1",
+			"destination": "queue1",
+			"destination_type": "queue",
+			"routing_key": "type1",
+			"arguments": {
+				
+			}
+		},
+		{
+			"source": "topic1",
+			"destination": "queue2",
+			"destination_type": "queue",
+			"routing_key": "type2",
+			"arguments": {
+				
+			}
+		}
+	]
 }

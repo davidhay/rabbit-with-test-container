@@ -1,10 +1,10 @@
 package com.ealanta;
 
-import static com.ealanta.QueueConfig.QUEUE_ONE;
-import static com.ealanta.QueueConfig.QUEUE_TWO;
-import static com.ealanta.QueueConfig.TOPIC_ONE;
-import static com.ealanta.QueueConfig.TYPE_ONE;
-import static com.ealanta.QueueConfig.TYPE_TWO;
+import static com.ealanta.RabbitInfo.QUEUE_ONE;
+import static com.ealanta.RabbitInfo.QUEUE_TWO;
+import static com.ealanta.RabbitInfo.TOPIC_ONE;
+import static com.ealanta.RabbitInfo.TYPE_ONE;
+import static com.ealanta.RabbitInfo.TYPE_TWO;
 
 import java.io.IOException;
 import java.util.Arrays;
@@ -14,9 +14,13 @@ import java.util.concurrent.TimeUnit;
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 public class SendRecvTestUsingRabbitInTestContainerTest extends BaseRabbitInTestContainerTest {
 
+	private static final Logger LOG = LoggerFactory.getLogger(SendRecvTestUsingRabbitInTestContainerTest.class);
+	
 	@Autowired
 	private RecvService recvService;
 
@@ -27,7 +31,7 @@ public class SendRecvTestUsingRabbitInTestContainerTest extends BaseRabbitInTest
 	public static void initRabbit() {
 		try {
 			String result = runCommandInDocker("rabbitmqadmin --vhost=/ import /rabbit-config-for-test.json");
-			System.out.printf("ls [%s]", result);
+			LOG.info("ls [{}]", result);
 		} catch (Exception ex) {
 			ex.printStackTrace();
 		}
@@ -52,8 +56,8 @@ public class SendRecvTestUsingRabbitInTestContainerTest extends BaseRabbitInTest
 	@Test
 	public void testCheckQueuesInTestContainer() throws Exception {
 		String result = runCommandInDocker("rabbitmqadmin list queues -f bash");
-		System.out.printf("queues[%s]%n",result);
-		Assert.assertEquals(QUEUE_ONE + " " + QUEUE_TWO + " test.queue.one", result);
+		LOG.info("queues[{}]",result);
+		Assert.assertEquals(QUEUE_ONE + " " + QUEUE_TWO, result);
 	}
 	
 	@Test

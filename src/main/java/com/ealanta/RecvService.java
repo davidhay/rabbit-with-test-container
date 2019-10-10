@@ -17,15 +17,15 @@ public class RecvService {
 	
 	private final List<String> type2msgs = new ArrayList<>();
 		
-	@RabbitListener(queues = QueueConfig.QUEUE_ONE)
+	@RabbitListener(queues = RabbitInfo.QUEUE_ONE)
 	public void receiveType1(String msg) {
-		log.info("recvd[{}]from[{}]", msg, QueueConfig.QUEUE_ONE);
+		log.info("recvd[{}]from[{}]", msg, RabbitInfo.QUEUE_ONE);
 		type1msgs.add(msg);
 	}
 	
-	@RabbitListener(queues = QueueConfig.QUEUE_TWO)
+	@RabbitListener(queues = RabbitInfo.QUEUE_TWO)
 	public void receiveType2(String msg) {
-		log.info("recvd[{}]from[{}]", msg, QueueConfig.QUEUE_TWO);
+		log.info("recvd[{}]from[{}]", msg, RabbitInfo.QUEUE_TWO);
 		type2msgs.add(msg);
 	}
 		

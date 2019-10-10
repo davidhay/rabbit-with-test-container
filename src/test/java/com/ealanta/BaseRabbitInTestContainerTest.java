@@ -27,25 +27,27 @@ import org.testcontainers.images.builder.ImageFromDockerfile;
 @ActiveProfiles("test")
 public abstract class BaseRabbitInTestContainerTest {
 
+	private static final Logger log = LoggerFactory.getLogger(BaseRabbitInTestContainerTest.class);
+
+	public static final String CONFIG_FILE = "rabbit-config-for-test.json";
+	public static final String CONFIG_FILE_PATH = "/" + CONFIG_FILE;
+	
 	public static final int RABBIT_PORT = 5672;
 	public static final int RABBIT_MANAGEMENT_PORT = 15672;
-	
-	public static final String DEFAULT_USER="guest";
-	public static final String DEFAULT_PASS="guest";
-	private static final Logger log = LoggerFactory.getLogger(BaseRabbitInTestContainerTest.class);
+	public static final String RABBIT_DEFAULT_USER="guest";
+	public static final String RABBIT_DEFAULT_PASS="guest";
 
 	@ClassRule
 	public static GenericContainer rabbit;
 	
 	static {
 		rabbit = new GenericContainer(new ImageFromDockerfile()
-				.withFileFromClasspath("rabbit-config-for-test.json", "rabbit-config-for-test.json")
+				.withFileFromClasspath(CONFIG_FILE, CONFIG_FILE)
 				.withDockerfileFromBuilder(builder -> builder
 						.from("rabbitmq:3-management")
-						.add("rabbit-config-for-test.json", "/rabbit-config-for-test.json")
+						.add(CONFIG_FILE, CONFIG_FILE_PATH)
 						.build())).withExposedPorts(RABBIT_PORT, RABBIT_MANAGEMENT_PORT);
 	}
-
 
 	// helps check that Spring is using overridden property value from rabbit test
 	// container
@@ -92,8 +94,8 @@ public abstract class BaseRabbitInTestContainerTest {
 		log.info("Spring Password [{}]", springPropPassword);
 		log.info("Spring Virtual Host [{}]", springPropVirtualHost);
 
-		Assert.assertEquals(springPropUsername, DEFAULT_PASS);
-		Assert.assertEquals(springPropPassword, DEFAULT_USER);
+		Assert.assertEquals(springPropUsername, RABBIT_DEFAULT_PASS);
+		Assert.assertEquals(springPropPassword, RABBIT_DEFAULT_USER);
 		Assert.assertEquals(springPropHost, rabbit.getContainerIpAddress());
 		Assert.assertEquals(springPropPort, rabbit.getMappedPort(5672));
 	}
@@ -119,9 +121,9 @@ public abstract class BaseRabbitInTestContainerTest {
 		public void initialize(ConfigurableApplicationContext configurableApplicationContext) {
 			TestPropertyValues values = TestPropertyValues.of(
 					"spring.rabbitmq.host=" + rabbit.getContainerIpAddress(),
-					"spring.rabbitmq.port=" + rabbit.getMappedPort(5672),
-					"spring.rabbitmq.username=" + DEFAULT_USER,
-					"spring.rabbitmq.password=" + DEFAULT_PASS, 
+					"spring.rabbitmq.port=" + rabbit.getMappedPort(RABBIT_PORT),
+					"spring.rabbitmq.username=" + RABBIT_DEFAULT_USER,
+					"spring.rabbitmq.password=" + RABBIT_DEFAULT_PASS, 
 					"spring.rabbitmq.virtual-host=/");
 			values.applyTo(configurableApplicationContext.getEnvironment());
 		}
