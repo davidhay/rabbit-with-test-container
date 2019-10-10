@@ -12,7 +12,6 @@ import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 import org.junit.Assert;
-import org.junit.BeforeClass;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -27,16 +26,6 @@ public class SendRecvTestUsingRabbitInTestContainerTest extends BaseRabbitInTest
 	@Autowired
 	private SendingService sendService;	
 	
-	@BeforeClass
-	public static void initRabbit() {
-		try {
-			String result = runCommandInDocker("rabbitmqadmin --vhost=/ import /rabbit-config-for-test.json");
-			LOG.info("ls [{}]", result);
-		} catch (Exception ex) {
-			ex.printStackTrace();
-		}
-	}
-
 	@Test
 	public void testSendRecv() throws UnsupportedOperationException, IOException, InterruptedException {
 		

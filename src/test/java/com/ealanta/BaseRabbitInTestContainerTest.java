@@ -3,6 +3,7 @@ package com.ealanta;
 import java.nio.charset.StandardCharsets;
 
 import org.junit.Assert;
+import org.junit.BeforeClass;
 import org.junit.ClassRule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -27,26 +28,39 @@ import org.testcontainers.images.builder.ImageFromDockerfile;
 @ActiveProfiles("test")
 public abstract class BaseRabbitInTestContainerTest {
 
-	private static final Logger log = LoggerFactory.getLogger(BaseRabbitInTestContainerTest.class);
+	private static final Logger LOG = LoggerFactory.getLogger(BaseRabbitInTestContainerTest.class);
 
 	public static final String CONFIG_FILE = "rabbit-config-for-test.json";
 	public static final String CONFIG_FILE_PATH = "/" + CONFIG_FILE;
 	
+	private static final String RABBIT_BASE_IMAGE = "rabbitmq:3-management";
+	public static final String RABBIT_DEFAULT_VIRTUAL_HOST = "/";
 	public static final int RABBIT_PORT = 5672;
 	public static final int RABBIT_MANAGEMENT_PORT = 15672;
-	public static final String RABBIT_DEFAULT_USER="guest";
-	public static final String RABBIT_DEFAULT_PASS="guest";
+	public static final String RABBIT_DEFAULT_USER = "guest";
+	public static final String RABBIT_DEFAULT_PASS = "guest";
 
 	@ClassRule
-	public static GenericContainer rabbit;
+	public static GenericContainer<?> rabbit;
 	
 	static {
-		rabbit = new GenericContainer(new ImageFromDockerfile()
+		rabbit = new GenericContainer<>(new ImageFromDockerfile()
 				.withFileFromClasspath(CONFIG_FILE, CONFIG_FILE)
 				.withDockerfileFromBuilder(builder -> builder
-						.from("rabbitmq:3-management")
+						.from(RABBIT_BASE_IMAGE)
 						.add(CONFIG_FILE, CONFIG_FILE_PATH)
 						.build())).withExposedPorts(RABBIT_PORT, RABBIT_MANAGEMENT_PORT);
+	}
+
+	@BeforeClass
+	public static void importRabbitConfig() {
+		try {
+			String importCommand = String.format("rabbitmqadmin --vhost='%s' import %s", RABBIT_DEFAULT_VIRTUAL_HOST, CONFIG_FILE_PATH);
+			String result = runCommandInDocker(importCommand);
+			LOG.info("import result [{}]", result);
+		} catch (Exception ex) {
+			ex.printStackTrace();
+		}
 	}
 
 	// helps check that Spring is using overridden property value from rabbit test
@@ -77,27 +91,24 @@ public abstract class BaseRabbitInTestContainerTest {
 	@Test
 	public void baseTestCheckSpringRabbitPropertiesFromTestContainer() {
 
-		int rabbitPort = rabbit.getMappedPort(5672);
+		int rabbitPort = rabbit.getMappedPort(RABBIT_PORT);
 		String rabbitHost = rabbit.getContainerIpAddress();
-		String rabbitUser = "rabbit";
-		String rabbitPassword = "bunny";
 
-		log.info("Rabbit Host [{}]", rabbitHost);
-		log.info("Rabbit Port [{}]", rabbitPort);
-		log.info("Rabbit Username [{}]", rabbitUser);
-		log.info("Rabbit password [{}]", rabbitPassword);
-		// odd but RabbitMQContainer does not (seem to ) have method to get virtual host
+		LOG.info("Rabbit Host [{}]", rabbitHost);
+		LOG.info("Rabbit Port [{}]", rabbitPort);
+		LOG.info("Rabbit Username [{}]", RABBIT_DEFAULT_USER);
+		LOG.info("Rabbit password [{}]", RABBIT_DEFAULT_PASS);
 
-		log.info("Spring Host [{}]", springPropHost);
-		log.info("Spring Port [{}]", springPropPort);
-		log.info("Spring Username [{}]", springPropUsername);
-		log.info("Spring Password [{}]", springPropPassword);
-		log.info("Spring Virtual Host [{}]", springPropVirtualHost);
+		LOG.info("Spring Host [{}]", springPropHost);
+		LOG.info("Spring Port [{}]", springPropPort);
+		LOG.info("Spring Username [{}]", springPropUsername);
+		LOG.info("Spring Password [{}]", springPropPassword);
+		LOG.info("Spring Virtual Host [{}]", springPropVirtualHost);
 
-		Assert.assertEquals(springPropUsername, RABBIT_DEFAULT_PASS);
-		Assert.assertEquals(springPropPassword, RABBIT_DEFAULT_USER);
+		Assert.assertEquals(springPropUsername, RABBIT_DEFAULT_USER);
+		Assert.assertEquals(springPropPassword, RABBIT_DEFAULT_PASS);
 		Assert.assertEquals(springPropHost, rabbit.getContainerIpAddress());
-		Assert.assertEquals(springPropPort, rabbit.getMappedPort(5672));
+		Assert.assertEquals(springPropPort, rabbit.getMappedPort(RABBIT_PORT));
 	}
 
 	protected static String runCommandInDocker(String unixCommand) throws Exception {
@@ -106,7 +117,7 @@ public abstract class BaseRabbitInTestContainerTest {
 		String stdErr = res.getStderr().trim();
 		String stdOut = res.getStdout().trim();
 		Assert.assertEquals(0, exitCode);
-		log.info("cmd[{}] -> exit[{}] err[{}] out[{}]", unixCommand, exitCode, stdErr, stdOut);
+		LOG.info("cmd[{}] -> exit[{}] err[{}] out[{}]", unixCommand, exitCode, stdErr, stdOut);
 		return stdOut;
 	}
 
@@ -117,6 +128,7 @@ public abstract class BaseRabbitInTestContainerTest {
 	}
 
 	public static class Initializer implements ApplicationContextInitializer<ConfigurableApplicationContext> {
+
 		@Override
 		public void initialize(ConfigurableApplicationContext configurableApplicationContext) {
 			TestPropertyValues values = TestPropertyValues.of(
@@ -124,7 +136,7 @@ public abstract class BaseRabbitInTestContainerTest {
 					"spring.rabbitmq.port=" + rabbit.getMappedPort(RABBIT_PORT),
 					"spring.rabbitmq.username=" + RABBIT_DEFAULT_USER,
 					"spring.rabbitmq.password=" + RABBIT_DEFAULT_PASS, 
-					"spring.rabbitmq.virtual-host=/");
+					"spring.rabbitmq.virtual-host="+ RABBIT_DEFAULT_VIRTUAL_HOST);
 			values.applyTo(configurableApplicationContext.getEnvironment());
 		}
 	}
